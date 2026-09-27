@@ -60,6 +60,7 @@ export default function Inspector(props: { store: Store }) {
         <Show when={theme()} fallback={<div class="empty-state">从中间主题树选择一个主题，添加定义、备忘录和示例。</div>}>
           {(current) => <>
             <div class="selected-theme-title"><span style={{ background: current().color }} /> <strong>{current().name}</strong></div>
+            <div class="theme-path">主题路径：{props.store.themePathLabel(current().id)}</div>
             <Show when={segment()}>
               {(activeSegment) => <div class="quote-card">
                 <div class="quote-meta">{activeSegment().time} · {activeSegment().speaker}</div>

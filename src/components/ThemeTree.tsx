@@ -4,7 +4,7 @@ import type { useCodingStore } from '../store/coding-store';
 
 type Store = ReturnType<typeof useCodingStore>;
 
-export default function ThemeTree(props: { store: Store; onCreate: (parentId?: string) => void; onMerge: () => void; onSplit: () => void }) {
+export default function ThemeTree(props: { store: Store; onCreate: (parentId?: string) => void; onMove: () => void; onMerge: () => void; onSplit: () => void }) {
   const [query, setQuery] = createSignal('');
   const themes = createMemo(() => props.store.orderedThemes().filter((theme) => theme.name.toLowerCase().includes(query().toLowerCase())));
   const activeSegment = () => props.store.state.segments.find((segment) => segment.id === props.store.state.activeSegmentId);
@@ -59,6 +59,7 @@ export default function ThemeTree(props: { store: Store; onCreate: (parentId?: s
         <div class="tree-footer">
           <Chip size="small" label={`当前：${props.store.state.themes.find((theme) => theme.id === props.store.state.activeThemeId)?.name ?? '未选择'}`} />
           <div class="button-row">
+            <Button size="small" onClick={props.onMove}>移动主题</Button>
             <Button size="small" onClick={props.onMerge}>合并主题</Button>
             <Button size="small" onClick={props.onSplit}>拆分主题</Button>
           </div>

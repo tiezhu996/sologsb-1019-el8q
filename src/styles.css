@@ -92,6 +92,8 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .inspector-panel > div:not(.panel-heading):not(.inspector-tabs), .inspector-panel > label { margin-left: 17px; margin-right: 17px; }
 .selected-theme-title { gap: 7px; padding-top: 15px; font-family: "Songti SC", serif; font-size: 16px; }
 .selected-theme-title > span { width: 9px; height: 19px; border-radius: 2px; }
+.theme-path { margin-top: 5px; color: var(--muted); font-size: 10px; }
+.field-label .native-select { display: block; width: 100%; margin-top: 5px; }
 .quote-card { margin-top: 13px; padding: 11px; border: 1px solid #d9e3df; border-radius: 9px; background: #f5f8f5; }
 .quote-meta { color: var(--muted); font-size: 10px; }
 blockquote { margin: 7px 0; color: #2c4843; font-family: "Songti SC", serif; line-height: 1.65; font-size: 12px; }

@@ -189,8 +189,52 @@ export function useCodingStore() {
     });
   };
 
+  const themePath = (themeId: string): Theme[] => {
+    const byId = new Map(state.themes.map((theme) => [theme.id, theme]));
+    const path: Theme[] = [];
+    const seen = new Set<string>();
+    let current = byId.get(themeId);
+    while (current && !seen.has(current.id)) {
+      seen.add(current.id);
+      path.unshift(current);
+      current = current.parentId ? byId.get(current.parentId) : undefined;
+    }
+    return path;
+  };
+
+  const themePathLabel = (themeId: string) => themePath(themeId).map((theme) => theme.name).join(' / ');
+
+  const moveThemeCheck = (themeId: string, newParentId: string | null): { ok: boolean; reason: string } => {
+    const theme = state.themes.find((item) => item.id === themeId);
+    if (!theme) return { ok: false, reason: '主题不存在' };
+    if (newParentId) {
+      const target = state.themes.find((item) => item.id === newParentId);
+      if (!target) return { ok: false, reason: '目标主题不存在' };
+      if (newParentId === themeId) return { ok: false, reason: '不能把主题挂到它自己下面，主题路径会绕成圈' };
+      if (themePath(newParentId).some((item) => item.id === themeId)) {
+        return { ok: false, reason: `“${target.name}”是“${theme.name}”的下层主题，挂过去会让主题路径绕成圈，编码册和主题记事都读不出完整层级` };
+      }
+    }
+    if ((theme.parentId ?? null) === newParentId) return { ok: false, reason: '主题已经在该位置，无需移动' };
+    return { ok: true, reason: '' };
+  };
+
+  const moveTheme = (themeId: string, newParentId: string | null) => {
+    const check = moveThemeCheck(themeId, newParentId);
+    if (!check.ok) return check;
+    const name = state.themes.find((item) => item.id === themeId)?.name ?? themeId;
+    const from = themePathLabel(themeId);
+    const to = newParentId ? `${themePathLabel(newParentId)} / ${name}` : name;
+    transaction('移动主题', `${from} → ${to}`, (draft) => {
+      const theme = draft.themes.find((item) => item.id === themeId);
+      if (theme) theme.parentId = newParentId;
+    });
+    return check;
+  };
+
   const mergeThemes = (sourceId: string, targetId: string) => {
     if (!sourceId || !targetId || sourceId === targetId) return;
+    if (themePath(targetId).some((item) => item.id === sourceId)) return;
     transaction('合并主题', `${state.themes.find((item) => item.id === sourceId)?.name ?? sourceId} → ${state.themes.find((item) => item.id === targetId)?.name ?? targetId}`, (draft) => {
       draft.segments.forEach((segment) => {
         (['A', 'B'] as CoderId[]).forEach((coder) => {
@@ -330,6 +374,10 @@ export function useCodingStore() {
     addTheme,
     updateTheme,
     deleteTheme,
+    themePath,
+    themePathLabel,
+    moveThemeCheck,
+    moveTheme,
     mergeThemes,
     splitTheme,
     updateSegment,
