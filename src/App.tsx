@@ -4,7 +4,7 @@ import TranscriptPanel from './components/TranscriptPanel';
 import ThemeTree from './components/ThemeTree';
 import Inspector from './components/Inspector';
 import ImportDialog from './components/ImportDialog';
-import { CreateThemeDialog, MergeThemeDialog, SplitThemeDialog } from './components/ThemeDialogs';
+import { CreateThemeDialog, MergeThemeDialog, MoveThemeDialog, SplitThemeDialog } from './components/ThemeDialogs';
 import { useCodingStore } from './store/coding-store';
 
 export default function App() {
@@ -13,6 +13,7 @@ export default function App() {
   const [createOpen, setCreateOpen] = createSignal(false);
   const [createParent, setCreateParent] = createSignal<string | undefined>();
   const [mergeOpen, setMergeOpen] = createSignal(false);
+  const [moveOpen, setMoveOpen] = createSignal(false);
   const [splitOpen, setSplitOpen] = createSignal(false);
   const [shortcutsOpen, setShortcutsOpen] = createSignal(false);
 
@@ -115,7 +116,7 @@ export default function App() {
 
       <main class="workspace-grid">
         <TranscriptPanel store={store} />
-        <ThemeTree store={store} onCreate={(parentId) => { setCreateParent(parentId); setCreateOpen(true); }} onMerge={() => setMergeOpen(true)} onSplit={() => setSplitOpen(true)} />
+        <ThemeTree store={store} onCreate={(parentId) => { setCreateParent(parentId); setCreateOpen(true); }} onMove={() => setMoveOpen(true)} onMerge={() => setMergeOpen(true)} onSplit={() => setSplitOpen(true)} />
         <Inspector store={store} />
       </main>
 
@@ -143,6 +144,7 @@ export default function App() {
       <ImportDialog open={importOpen()} onClose={() => setImportOpen(false)} onImport={store.importTranscript} />
       <CreateThemeDialog store={store} open={createOpen()} parentId={createParent()} onClose={() => { setCreateOpen(false); setCreateParent(undefined); }} />
       <MergeThemeDialog store={store} open={mergeOpen()} onClose={() => setMergeOpen(false)} />
+      <MoveThemeDialog store={store} open={moveOpen()} onClose={() => setMoveOpen(false)} />
       <SplitThemeDialog store={store} open={splitOpen()} onClose={() => setSplitOpen(false)} />
 
       <div class="modal-backdrop" classList={{ hidden: !shortcutsOpen() }} onClick={() => setShortcutsOpen(false)}>

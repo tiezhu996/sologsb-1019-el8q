@@ -189,8 +189,47 @@ export function useCodingStore() {
     });
   };
 
+  const themePath = (themeId: string): string => {
+    const themeMap = new Map(state.themes.map((theme) => [theme.id, theme]));
+    const names: string[] = [];
+    const seen = new Set<string>();
+    let current = themeMap.get(themeId);
+    while (current && !seen.has(current.id)) {
+      seen.add(current.id);
+      names.unshift(current.name);
+      current = current.parentId ? themeMap.get(current.parentId) : undefined;
+    }
+    return names.join(' / ');
+  };
+
+  const wouldCreateCycle = (themeId: string, newParentId: string | null): boolean => {
+    if (!newParentId) return false;
+    const themeMap = new Map(state.themes.map((theme) => [theme.id, theme]));
+    const seen = new Set<string>();
+    let currentId: string | null = newParentId;
+    while (currentId) {
+      if (currentId === themeId) return true;
+      if (seen.has(currentId)) return false;
+      seen.add(currentId);
+      currentId = themeMap.get(currentId)?.parentId ?? null;
+    }
+    return false;
+  };
+
+  const moveTheme = (themeId: string, newParentId: string | null) => {
+    const theme = state.themes.find((item) => item.id === themeId);
+    if (!theme || theme.parentId === newParentId) return;
+    if (wouldCreateCycle(themeId, newParentId)) return;
+    const parentName = newParentId ? state.themes.find((item) => item.id === newParentId)?.name ?? '' : '';
+    transaction('移动主题', parentName ? `「${theme.name}」挂到「${parentName}」之下，子主题与编码片段一并跟随` : `「${theme.name}」移为一级主题，子主题与编码片段一并跟随`, (draft) => {
+      const target = draft.themes.find((item) => item.id === themeId);
+      if (target) target.parentId = newParentId;
+    });
+  };
+
   const mergeThemes = (sourceId: string, targetId: string) => {
     if (!sourceId || !targetId || sourceId === targetId) return;
+    if (wouldCreateCycle(sourceId, targetId)) return;
     transaction('合并主题', `${state.themes.find((item) => item.id === sourceId)?.name ?? sourceId} → ${state.themes.find((item) => item.id === targetId)?.name ?? targetId}`, (draft) => {
       draft.segments.forEach((segment) => {
         (['A', 'B'] as CoderId[]).forEach((coder) => {
@@ -264,7 +303,6 @@ export function useCodingStore() {
 
   const exportCoding = (format: 'json' | 'csv') => {
     const segmentMap = new Map(state.segments.map((segment) => [segment.id, segment]));
-    const themeMap = new Map(state.themes.map((theme) => [theme.id, theme]));
     if (format === 'json') return JSON.stringify({ exportedAt: new Date().toISOString(), ...cloneState(state) }, null, 2);
     const escape = (value: string) => `"${value.replaceAll('"', '""')}"`;
     const rows = [['片段编号', '时间', '发言人', '原文', '编码者', '主题路径', '备忘录'].map(escape).join(',')];
@@ -272,15 +310,7 @@ export function useCodingStore() {
       (['A', 'B'] as CoderId[]).forEach((coder) => {
         const name = coder === 'A' ? state.coderA : state.coderB;
         const themeIds = segment.assignments[coder];
-        const paths = themeIds.length ? themeIds.map((id) => {
-          const names: string[] = [];
-          let current = themeMap.get(id);
-          while (current) {
-            names.unshift(current.name);
-            current = current.parentId ? themeMap.get(current.parentId) : undefined;
-          }
-          return names.join(' / ');
-        }) : ['未编码'];
+        const paths = themeIds.length ? themeIds.map((id) => themePath(id)) : ['未编码'];
         rows.push([segment.id, segment.time, segment.speaker, segment.text, name, paths.join(' | '), segmentMap.get(segment.id)?.note ?? ''].map(escape).join(','));
       });
     });
@@ -330,8 +360,11 @@ export function useCodingStore() {
     addTheme,
     updateTheme,
     deleteTheme,
+    moveTheme,
     mergeThemes,
     splitTheme,
+    themePath,
+    wouldCreateCycle,
     updateSegment,
     importTranscript,
     addExample,

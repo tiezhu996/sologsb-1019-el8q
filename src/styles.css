@@ -92,11 +92,13 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .inspector-panel > div:not(.panel-heading):not(.inspector-tabs), .inspector-panel > label { margin-left: 17px; margin-right: 17px; }
 .selected-theme-title { gap: 7px; padding-top: 15px; font-family: "Songti SC", serif; font-size: 16px; }
 .selected-theme-title > span { width: 9px; height: 19px; border-radius: 2px; }
+.theme-path { margin-top: 5px; color: var(--muted); font-size: 10px; line-height: 1.5; }
 .quote-card { margin-top: 13px; padding: 11px; border: 1px solid #d9e3df; border-radius: 9px; background: #f5f8f5; }
 .quote-meta { color: var(--muted); font-size: 10px; }
 blockquote { margin: 7px 0; color: #2c4843; font-family: "Songti SC", serif; line-height: 1.65; font-size: 12px; }
 .link-button { border: 0; padding: 0; background: transparent; color: var(--forest); font-size: 10px; }
 .field-label { display: block; margin-top: 14px; color: #53625e; font-size: 11px; font-weight: 700; }
+.field-label .native-select { display: block; margin-top: 5px; }
 .native-textarea { display: block; width: 100%; min-height: 76px; margin-top: 5px; resize: vertical; font-size: 12px; line-height: 1.55; }
 .inline-input { gap: 6px; margin-top: 5px; }
 .inline-input .native-input { min-width: 0; flex: 1; }
@@ -112,8 +114,9 @@ blockquote { margin: 7px 0; color: #2c4843; font-family: "Songti SC", serif; lin
 .compare-chip { justify-content: space-between; gap: 3px; margin-bottom: 5px; min-width: 0; }
 .compare-chip .MuiChip-root { min-width: 0; font-size: 9px !important; }
 .coder-column select { margin-top: 7px; font-size: 10px; }
-.agreement, .disagreement, .warning-box { margin-top: 12px; padding: 10px; border-radius: 8px; font-size: 11px; line-height: 1.5; }
+.agreement, .disagreement, .warning-box, .move-preview { margin-top: 12px; padding: 10px; border-radius: 8px; font-size: 11px; line-height: 1.5; }
 .agreement { color: #286148; background: #e8f4ed; }
+.move-preview { color: #286148; background: #e8f4ed; }
 .disagreement { color: #8b3d2d; background: #fbeae4; }
 .audit-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
 .audit-summary div { padding: 11px; background: #f1f4f1; border-radius: 8px; }
